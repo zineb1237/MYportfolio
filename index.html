@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,500;12..96,700;12..96,800&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;600&display=swap">
 <style>
+body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 
 /* Layout: éditorial rose — hero en arche + switch Dev/Data qui réécrit tout le portfolio */
 :root{
@@ -50,6 +51,12 @@ nav .wrap{display:flex;align-items:center;gap:18px;padding-block:12px}
 .links a:hover{color:var(--mauve)}
 @media (max-width:860px){.links{display:none}}
 
+.theme{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);display:grid;place-items:center;cursor:pointer;font-size:18px;transition:transform .4s,background .25s}
+.theme:hover{transform:rotate(25deg);background:var(--blush)}
+.theme svg{width:18px;height:18px;display:block}
+.theme .t-sun{display:none}
+.is-dark .theme .t-sun{display:block}.is-dark .theme .t-moon{display:none}
+@media (max-width:860px){.theme{margin-left:auto}.theme + .switch{margin-left:0}}
 /* mode switch */
 .switch{position:relative;display:inline-flex;background:var(--blush);border-radius:999px;padding:4px;border:1px solid var(--line);margin-left:auto}
 .links + .switch{margin-left:0}
@@ -297,6 +304,7 @@ main,nav,footer{position:relative;z-index:1}
     <div class="links">
       <a href="#about">À propos</a><a href="#skills">Compétences</a><a href="#method">Méthode</a><a href="#exp">Parcours</a><a href="#projects">Projets</a><a href="#cv">CV</a><a href="#contact">Contact</a>
     </div>
+    <button class="theme" id="theme" type="button" aria-label="Changer de thème"><svg class="t-moon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg><svg class="t-sun" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg></button>
     <div class="switch" role="group" aria-label="Choisir le profil">
       <span class="pill"></span>
       <button id="m-dev" data-set="dev" type="button"><i data-lucide="code-2"></i>Dev</button>
@@ -649,6 +657,12 @@ $('#lb-close').onclick=closeLb;
 $('#lb').addEventListener('click',e=>{ if(e.target.id==='lb') closeLb() });
 addEventListener('keydown',e=>{ if(e.key==='Escape') closeLb() });
 $('#cv-swap').onclick=()=>{ document.querySelector('.switch [data-set="'+(mode==='dev'?'data':'dev')+'"]').click() };
+const root=document.documentElement, mq=matchMedia('(prefers-color-scheme: dark)');
+const isDark=()=> root.dataset.theme ? root.dataset.theme==='dark' : mq.matches;
+const syncTheme=()=> root.classList.toggle('is-dark', isDark());
+try{ const t=localStorage.getItem('ze-theme'); if(t==='dark'||t==='light') root.dataset.theme=t }catch(e){}
+syncTheme(); mq.addEventListener && mq.addEventListener('change',syncTheme);
+$('#theme').onclick=()=>{ const t=isDark()?'light':'dark'; root.dataset.theme=t; syncTheme(); try{ localStorage.setItem('ze-theme',t) }catch(e){} };
 let start = 'dev';
 if(location.hash==='#data' || location.hash==='#dev') start = location.hash.slice(1);
 else { try{ const s=localStorage.getItem('ze-mode'); if(s==='data'||s==='dev') start=s }catch(e){} }
